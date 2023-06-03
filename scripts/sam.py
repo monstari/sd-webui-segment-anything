@@ -450,9 +450,9 @@ def ui_sketch(sam_input_image, is_img2img):
     return sam_sketch_checkbox, sam_inpaint_color_sketch, sam_inpaint_mask_alpha
 
 def ui_dilation(sam_output_mask_gallery, sam_output_chosen_mask, sam_input_image):
-    sam_dilation_checkbox = gr.Checkbox(value=False, label="Expand Mask")
+    sam_dilation_checkbox = gr.Checkbox(value=true, label="Expand Mask")
     with gr.Column(visible=False) as dilation_column:
-        sam_dilation_amt = gr.Slider(minimum=0, maximum=100, default=0, value=0, label="Specify the amount that you wish to expand the mask by (recommend 30)")
+        sam_dilation_amt = gr.Slider(minimum=0, maximum=100, default=10, value=0, label="Specify the amount that you wish to expand the mask by (recommend 10)")
         sam_dilation_output_gallery = gr.Gallery(label="Expanded Mask").style(grid=3)
         sam_dilation_submit = gr.Button(value="Update Mask")
         sam_dilation_submit.click(
@@ -484,10 +484,10 @@ def ui_batch(is_dino):
     dino_batch_source_dir = gr.Textbox(label="Source directory")
     dino_batch_dest_dir = gr.Textbox(label="Destination directory")
     with gr.Row():
-        dino_batch_output_per_image = gr.Radio(choices=["1", "3"], value="3", type="index", label="Output per image: ", visible=is_dino)
-        dino_batch_save_image = gr.Checkbox(value=True, label="Save masked image")
+        dino_batch_output_per_image = gr.Radio(choices=["1", "2", "3"], value="3", type="index", label="Favorite mask: ", visible=is_dino)
+        dino_batch_save_image = gr.Checkbox(value=false, label="Save masked image")
         dino_batch_save_mask = gr.Checkbox(value=True, label="Save mask")
-        dino_batch_save_image_with_mask = gr.Checkbox(value=True, label="Save original image with mask and bounding box")
+        dino_batch_save_image_with_mask = gr.Checkbox(value=false, label="Save original image with mask and bounding box")
         dino_batch_save_background = gr.Checkbox(value=False, label="Save background instead of foreground")
     dino_batch_run_button = gr.Button(value="Start batch process")
     dino_batch_progress = gr.Text(value="", label="GroundingDINO batch progress status")

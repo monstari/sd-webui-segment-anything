@@ -26,9 +26,7 @@ function samTabPrefix() {
     if (tabs) {
         const buttons = tabs.querySelectorAll('button');
         if (buttons) {
-            if (buttons[0].className.includes("selected")) {
-                return "txt2img_sam_"
-            } else if (buttons[1].className.includes("selected")) {
+            if (buttons[0].className.includes("selected") || buttons[1].className.includes("selected")) {
                 return "img2img_sam_"
             }
         }
