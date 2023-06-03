@@ -52,9 +52,9 @@ def sam_api(_: gr.Blocks, app: FastAPI):
         input_image: str
         sam_positive_points: List[List[float]] = []
         sam_negative_points: List[List[float]] = []
-        dino_enabled: bool = true
+        dino_enabled: bool = True
         dino_model_name: Optional[str] = "GroundingDINO_SwinT (938MB)"
-        dino_text_prompt: Optional[str] = "bra, underwear or pants"
+        dino_text_prompt: Optional[str] = None
         dino_box_threshold: Optional[float] = 0.3
         dino_preview_checkbox: bool = False
         dino_preview_boxes_selection: Optional[List[int]] = None
@@ -102,7 +102,7 @@ def sam_api(_: gr.Blocks, app: FastAPI):
         if "value" in dino_msg:
             dino_msg = dino_msg["value"]
         else:
-            dino_msg = "DONE"
+            dino_msg = "Done"
         print(f"SAM API /sam/dino-predict finished with message: {dino_msg}")
         return {
             "msg": dino_msg,
