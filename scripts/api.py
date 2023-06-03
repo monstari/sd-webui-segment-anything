@@ -54,7 +54,7 @@ def sam_api(_: gr.Blocks, app: FastAPI):
         sam_negative_points: List[List[float]] = []
         dino_enabled: bool = True
         dino_model_name: Optional[str] = "GroundingDINO_SwinT (938MB)"
-        dino_text_prompt: Optional[str] = None
+        dino_text_prompt: Optional[str] = "Bikini"
         dino_box_threshold: Optional[float] = 0.3
         dino_preview_checkbox: bool = False
         dino_preview_boxes_selection: Optional[List[int]] = None

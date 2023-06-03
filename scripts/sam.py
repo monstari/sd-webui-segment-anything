@@ -210,8 +210,8 @@ def sam_predict(sam_model_name, input_image, positive_points, negative_points,
             point_coords=None,
             point_labels=None,
             boxes=transformed_boxes.to(sam_device),
-            multimask_output=False)
-        masks = masks.permute(0, 1, 2, 3).cpu().numpy()
+            multimask_output=True)
+        masks = masks.permute(1, 0, 2, 3).cpu().numpy()
     else:
         num_box = 0 if boxes_filt is None else boxes_filt.shape[0]
         num_points = len(positive_points) + len(negative_points)
@@ -229,7 +229,7 @@ def sam_predict(sam_model_name, input_image, positive_points, negative_points,
             point_coords=point_coords if len(point_coords) > 0 else None,
             point_labels=point_labels if len(point_coords) > 0 else None,
             box=box,
-            multimask_output=False)
+            multimask_output=True)
         masks = masks[:, None, ...]
     garbage_collect(sam)
     return create_mask_output(image_np, masks, boxes_filt), sam_predict_status + sam_predict_result + (f" However, GroundingDINO installment has failed. Your process automatically fall back to local groundingdino. Check your terminal for more detail and {dino_install_issue_text}." if (dino_enabled and not install_success) else "")
@@ -285,7 +285,7 @@ def dino_batch_process(
             boxes=transformed_boxes.to(sam_device),
             multimask_output=(dino_batch_output_per_image == 2))
         
-        masks = masks.permute(0, 1, 2, 3).cpu().numpy()
+        masks = masks.permute(1, 0, 2, 3).cpu().numpy()
         boxes_filt = boxes_filt.cpu().numpy().astype(int)
         
         create_mask_batch_output(
@@ -595,7 +595,7 @@ class Script(scripts.Script):
                     sam_result = gr.Text(value="", label="Segment Anything status")
                     sam_submit.click(
                         fn=sam_predict,
-                        _js='submit_sam',
+                        _js='submit_sam', 
                         inputs=[sam_model_name, sam_input_image,        # SAM
                                 sam_dummy_component, sam_dummy_component,   # Point prompts
                                 dino_checkbox, dino_model_name, dino_text_prompt, dino_box_threshold,  # DINO prompts
