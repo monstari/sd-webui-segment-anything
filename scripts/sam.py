@@ -287,7 +287,8 @@ def dino_batch_process(
         
         masks = masks.permute(1, 0, 2, 3).cpu().numpy()
         boxes_filt = boxes_filt.cpu().numpy().astype(int)
-        
+        num_multimask_outputs = 2
+
         create_mask_batch_output(
             input_image_file, dino_batch_dest_dir, 
             image_np, masks, boxes_filt, batch_dilation_amt, 
