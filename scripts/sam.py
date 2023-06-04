@@ -283,11 +283,10 @@ def dino_batch_process(
             point_coords=None,
             point_labels=None,
             boxes=transformed_boxes.to(sam_device),
-            multimask_output=(dino_batch_output_per_image == 2))
+            multimask_output=(dino_batch_output_per_image == 1))
         
         masks = masks.permute(1, 0, 2, 3).cpu().numpy()
         boxes_filt = boxes_filt.cpu().numpy().astype(int)
-        num_multimask_outputs = 2
 
         create_mask_batch_output(
             input_image_file, dino_batch_dest_dir, 
@@ -452,7 +451,7 @@ def ui_sketch(sam_input_image, is_img2img):
 
 def ui_dilation(sam_output_mask_gallery, sam_output_chosen_mask, sam_input_image):
     sam_dilation_checkbox = gr.Checkbox(value=True, label="Expand Mask")
-    with gr.Column(visible=False) as dilation_column:
+    with gr.Column(visible=True) as dilation_column:
         sam_dilation_amt = gr.Slider(minimum=0, maximum=100, default=10, value=0, label="Specify the amount that you wish to expand the mask by (recommend 10)")
         sam_dilation_output_gallery = gr.Gallery(label="Expanded Mask").style(grid=3)
         sam_dilation_submit = gr.Button(value="Update Mask")
@@ -485,7 +484,7 @@ def ui_batch(is_dino):
     dino_batch_source_dir = gr.Textbox(label="Source directory")
     dino_batch_dest_dir = gr.Textbox(label="Destination directory")
     with gr.Row():
-        dino_batch_output_per_image = gr.Radio(choices=["1", "2", "3"], value="3", type="index", label="Favorite mask: ", visible=is_dino)
+        dino_batch_output_per_image = gr.Radio(choices=["False", "True"], value="False", type="index", label="Multi masking: ", visible=is_dino)
         dino_batch_save_image = gr.Checkbox(value=False, label="Save masked image")
         dino_batch_save_mask = gr.Checkbox(value=True, label="Save mask")
         dino_batch_save_image_with_mask = gr.Checkbox(value=False, label="Save original image with mask and bounding box")
@@ -603,7 +602,7 @@ class Script(scripts.Script):
                                 dino_preview_checkbox, dino_preview_boxes_selection],  # DINO preview prompts
                         outputs=[sam_output_mask_gallery, sam_result])
                     with FormRow():
-                        sam_output_chosen_mask = gr.Radio(label="Choose your favorite mask: ", value="0", choices=["0", "1", "2"], type="index")
+                        sam_output_chosen_mask = gr.Radio(label="Choose your favorite mask: ", value="2", choices=["0", "1", "2"], type="index")
                         gr.Checkbox(value=False, label="Preview automatically when add/remove points", elem_id=f"{tab_prefix}realtime_preview_checkbox")
                     sam_inpaint_upload_enable, sam_cnet_inpaint_invert, sam_cnet_inpaint_idx = ui_inpaint(is_img2img, max_cn_num())
                     sam_dilation_checkbox, sam_dilation_output_gallery = ui_dilation(sam_output_mask_gallery, sam_output_chosen_mask, sam_input_image)
@@ -626,7 +625,17 @@ class Script(scripts.Script):
                                 dino_batch_source_dir, dino_batch_dest_dir, dino_batch_output_per_image, 
                                 dino_batch_save_image, dino_batch_save_mask, dino_batch_save_background, dino_batch_save_image_with_mask],
                         outputs=[dino_batch_progress])
-                    
+                    with FormRow():
+                        sam_output_chosen_mask = gr.Radio(label="Choose your favorite mask: ", value="2", choices=["0", "1", "2"], type="index")
+                        gr.Checkbox(value=False, label="Preview automatically when add/remove points", elem_id=f"{tab_prefix}realtime_preview_checkbox")
+                    sam_inpaint_upload_enable, sam_cnet_inpaint_invert, sam_cnet_inpaint_idx = ui_inpaint(is_img2img, max_cn_num())
+                    sam_dilation_checkbox, sam_dilation_output_gallery = ui_dilation(sam_output_mask_gallery, sam_output_chosen_mask, sam_input_image)
+                    sam_single_image_process = (
+                        sam_inpaint_upload_enable, sam_cnet_inpaint_invert, sam_cnet_inpaint_idx,
+                        sam_input_image, sam_output_mask_gallery, sam_output_chosen_mask, 
+                        sam_dilation_checkbox, sam_dilation_output_gallery)
+                    ui_process += sam_single_image_process
+
                 with gr.TabItem(label="Auto SAM"):
                     gr.Markdown("Auto SAM is mainly for semantic segmentation and image layout generation, which is supported based on ControlNet. You must have ControlNet extension installed, and you should not change its directory name (sd-webui-controlnet).")
                     gr.Markdown("The annotator directory inside the SAM extension directory is only a symbolic link. This is to save your space and make the extension repository clean.")
